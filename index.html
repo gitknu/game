@@ -206,7 +206,6 @@
                 font-size: 0.5rem;
             }
         }
-
         /* CODE 2: Styles for the new game screen */
         #game-wrap {
             width: 572px;
@@ -301,7 +300,6 @@
         #game-wrap[data-egg-3="3"] .egg.e-3 { top: 215px; right: 83px; transform: rotate(-96deg); }
         #game-wrap[data-egg-3="4"] .egg.e-3 { top: 223px; right: 100px; transform: rotate(152deg); }
         #game-wrap[data-egg-3="5"] .egg.e-3 { top: 235px; right: 112px; transform: rotate(68deg); }
-
         #game-wrap #score {
             position: absolute;
             top: 48px;
@@ -340,7 +338,6 @@
         #game-wrap #score ul > li.n-7 span { background-position: -217px 0px; }
         #game-wrap #score ul > li.n-8 span { background-position: -248px 0px; }
         #game-wrap #score ul > li.n-9 span { background-position: -279px 0px; }
-
         #game-wrap #loss {
             width: 114px;
             height: 32px;
@@ -353,7 +350,6 @@
         #game-wrap[data-loss="1"] #loss { width: 40px; }
         #game-wrap[data-loss="2"] #loss { width: 80px; }
         #game-wrap[data-loss="3"] #loss { width: 120px; }
-
         #message {
             width: 100%;
             height: 100%;
@@ -384,11 +380,10 @@
     <main class="game-container">
         <div class="start-btns-box">
             <button id="startBtn1" class="start-btn"></button>
-            <p class="start-btn-caption">game A</p>
+            <p class="start-btn-caption">игра A</p>
             <button id="startBtn2" class="start-btn"></button>
-            <p class="start-btn-caption">game B</p>
+            <p class="start-btn-caption">игра Б</p>
         </div>
-
         <div id="game-wrap" data-bx="0" data-by="1" data-egg-0="0" data-egg-1="0" data-egg-2="0" data-egg-3="0" data-loss="0">
             <div class="basket"></div>
             <div class="wolf"></div>
@@ -407,18 +402,15 @@
             <div id="loss"></div>
             <div id="message"></div>
         </div>
-        
         <button id="leftTopBtn" class="direction-btn"></button>
         <button id="leftBottomBtn" class="direction-btn"></button>
         <button id="rightTopBtn" class="direction-btn"></button>
         <button id="rightBottomBtn" class="direction-btn"></button>
     </main>
-
     <div id="modal">
         <p>Please rotate your phone to landscape orientation for the best experience </p>
         <img id="closeModalBtn" src="https://hanka8.github.io/Nu-pogodi/assets/close.svg" alt="close">
     </div>
-
     <script>
         // --- DOM ELEMENTS ---
         const gameContainerElement = document.querySelector('.game-container');
@@ -432,7 +424,6 @@
         const rightTopBtn = document.getElementById("rightTopBtn");
         const rightBottomBtn = document.getElementById("rightBottomBtn");
         const closeModalBtn = document.getElementById("closeModalBtn");
-
         // --- GAME CONSTANTS ---
         const EGG_FREQUENCY_CHANGE_A = 250;
         const EGG_SPEED_CHANGE_A = 50;
@@ -440,7 +431,6 @@
         const EGG_SPEED_CHANGE_B = 60;
         const MAX_MULTIPLIER = 1.8;
         const ORIGINAL_GAME_WRAP_WIDTH = 572;
-        
         // --- GAME LOGIC ---
         class Game {
             constructor() {
@@ -455,21 +445,17 @@
                 this.gameType = "A";
                 this.intervalId = null;
             }
-        
             start() {
                 this.intervalId = setInterval(() => {
                     if (this.isEnded) {
                         clearInterval(this.intervalId);
                         return;
                     }
-
                     const egg = new Egg();
                     egg.fall();
-                    
                     if (this.score % 100 == 0 && this.score > 0) {
                         // Bonus life could be implemented here
                     }
-
                     if (this.score > 0 && this.score % 10 == 0 && this.eggFrequency >= 800 && this.eggSpeed >= 500) {
                         if (this.gameType == "A") {
                             this.eggFrequency -= EGG_FREQUENCY_CHANGE_A;
@@ -481,12 +467,10 @@
                     }
                 }, this.eggFrequency);
             }
-        
             end() {
                 this.isEnded = true;
                 let gameOverSound = new Audio("https://hanka8.github.io/Nu-pogodi/sounds/gameOver.mp3");
-                gameOverSound.play();
-                
+                gameOverSound.play();   
                 const messageWrap = document.getElementById("message");
                 messageWrap.innerHTML = ''; 
                 const messageDiv = document.createElement('div');
@@ -499,19 +483,16 @@
                 messageWrap.appendChild(messageDiv);
                 messageWrap.style.display = 'block';
             }
-        
             updateScore() {
                 this.score += 1;
                 let collectSound = new Audio("https://hanka8.github.io/Nu-pogodi/sounds/collect.mp3");
-                collectSound.play();
-                
+                collectSound.play();   
                 const scoreString = this.score.toString().padStart(4, '0');
                 const scoreElements = scoreListElement.getElementsByTagName('li');
                 for (let i = 0; i < scoreElements.length; i++) {
                     scoreElements[i].className = 'n-' + scoreString[i];
                 }
             }
-        
             updateLives() {
                 this.lives += 1;
                 if (this.lives <= 3) {
@@ -524,30 +505,25 @@
                 }
             }
         }
-        
         class Wolf {
             constructor() {
                 this.x = 0; 
                 this.y = 1; 
                 this.updatePosition();
             }
-        
             updatePosition() {
                 gameWrapElement.setAttribute('data-bx', this.x);
                 gameWrapElement.setAttribute('data-by', this.y);
             }
-        
             moveLeft() { this.x = 0; }
             moveRight() { this.x = 1; }
             moveUp() { this.y = 1; }
             moveDown() { this.y = 0; }
-        
             checkCollision(egg) {
                 let eggIsLeft = egg.state.includes('left');
                 let eggIsTop = egg.state.includes('top');
                 let eggX = eggIsLeft ? 0 : 1;
                 let eggY = eggIsTop ? 1 : 0;
-        
                 if (this.x === eggX && this.y === eggY) {
                     game.updateScore();
                 } else {
@@ -555,7 +531,6 @@
                 }
             }
         }
-        
         class Egg {
             constructor() {
                 let eggOptions = ["bottom-left", "top-left", "top-right", "bottom-right"];
@@ -563,14 +538,12 @@
                 while (this.state === game.previousEggState) {
                     this.state = eggOptions[Math.floor(Math.random() * eggOptions.length)];
                 }
-                game.previousEggState = this.state;
-                
+                game.previousEggState = this.state;   
                 const stateMap = { "bottom-left": 0, "top-left": 1, "top-right": 2, "bottom-right": 3 };
                 this.eggIndex = stateMap[this.state];
                 this.step = 0;
                 this.maxSteps = 5; 
             }
-        
             fall() {
                 const self = this;
                 const interval = setInterval(() => {
@@ -579,10 +552,8 @@
                         gameWrapElement.setAttribute('data-egg-' + self.eggIndex, 0);
                         return;
                     }
-                    
                     self.step++;
                     gameWrapElement.setAttribute('data-egg-' + self.eggIndex, self.step);
-        
                     if (self.step > self.maxSteps) {
                         clearInterval(interval);
                         gameWrapElement.setAttribute('data-egg-' + self.eggIndex, 0);
@@ -591,10 +562,8 @@
                 }, game.eggSpeed / (this.maxSteps + 1));
             }
         }
-
         // --- INITIALIZE GAME and EVENT LISTENERS ---
         const game = new Game();
-        
         function handleMove(moveFn1, moveFn2) {
             if (game.isEnded) return;
             if (!game.gameStarted) {
@@ -605,12 +574,10 @@
             moveFn2.call(game.wolf);
             game.wolf.updatePosition();
         }
-
         leftBottomBtn.addEventListener("click", () => handleMove(game.wolf.moveLeft, game.wolf.moveDown));
         leftTopBtn.addEventListener("click", () => handleMove(game.wolf.moveLeft, game.wolf.moveUp));
         rightBottomBtn.addEventListener("click", () => handleMove(game.wolf.moveRight, game.wolf.moveDown));
         rightTopBtn.addEventListener("click", () => handleMove(game.wolf.moveRight, game.wolf.moveUp));
-        
         startBtn1.addEventListener("click", () => {
             if (game.isEnded) {
                 location.reload();
@@ -621,7 +588,6 @@
                 game.gameType = "A";
             }
         });
-        
         startBtn2.addEventListener("click", () => {
             if (game.isEnded) {
                 location.reload();
@@ -633,8 +599,7 @@
                 game.gameStarted = true;
                 game.gameType = "B";
             }
-        });
-        
+        });        
         // --- RESPONSIVENESS AND ADAPTIVENESS ---
         function responsibility() {
             // This part scales the outer console to fit the browser window
@@ -654,13 +619,11 @@
                 newMultiplier = MAX_MULTIPLIER;
             }
             document.documentElement.style.setProperty("--multiplier", `${newMultiplier}`);
-
             // This part scales the inner game screen to fit the console's width
             const targetGameWidth = gameContainerElement.offsetWidth * (255 / 520);
             const scaleFactor = targetGameWidth / ORIGINAL_GAME_WRAP_WIDTH;
             gameWrapElement.style.transform = `scale(${scaleFactor})`;
         }
-        
         function pleaseRotate() {
             if (window.screen.width <= 700) {
                 if (window.screen.orientation.type === "portrait-primary" || window.screen.orientation.type === "portrait-secondary") {
@@ -670,11 +633,9 @@
                 }
             }
         }
-
         closeModalBtn.addEventListener("click", () => {
             modalElement.classList.remove("shown");
         });
-
         window.addEventListener("resize", () => {
             responsibility();
             pleaseRotate();
