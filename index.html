@@ -48,7 +48,6 @@
             align-items: center;
             background-color: #000;
             font-family: 'Alegreya Sans SC', Tahoma, Arial, sans-serif;
-            overflow: hidden; /* Prevent scrollbars from appearing */
         }
         .game-container {
             position: relative;
@@ -642,7 +641,6 @@
                 game.start();
                 game.gameStarted = true;
                 game.gameType = "A";
-                enterFullScreen(); // Request fullscreen on game start
             }
         });
         startBtn2.addEventListener("click", () => {
@@ -655,7 +653,6 @@
                 game.start();
                 game.gameStarted = true;
                 game.gameType = "B";
-                enterFullScreen(); // Request fullscreen on game start
             }
         });
         // Event listeners for the audio control buttons
@@ -679,21 +676,6 @@
                 audioPlayBtn.classList.add('playing');
             }
         });
-
-        // --- NEW: FULLSCREEN FUNCTION ---
-        function enterFullScreen() {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.mozRequestFullScreen) { // Firefox
-                elem.mozRequestFullScreen();
-            } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { // IE/Edge
-                elem.msRequestFullscreen();
-            }
-        }
-
         // --- RESPONSIVENESS AND ADAPTIVENESS ---
         function responsibility() {
             // This part scales the outer console to fit the browser window
@@ -740,8 +722,6 @@
                     modalElement.classList.add("shown");
                 } else {
                     modalElement.classList.remove("shown");
-                    // EDITED: Attempt to go fullscreen when rotated to landscape
-                    enterFullScreen();
                 }
             }
         }
