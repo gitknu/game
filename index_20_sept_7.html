@@ -46,8 +46,31 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #000;
+            background-color: #000; /* Base background color */
             font-family: 'Alegreya Sans SC', Tahoma, Arial, sans-serif;
+            position: relative; /* Needed for z-index stacking */
+            overflow: hidden; /* Prevents scrollbars during transition */
+            z-index: 0;
+        }
+        /* MODIFIED: Switched to a pseudo-element for the slide-up background effect */
+        body::before {
+            content: '';
+            position: fixed; /* Covers the entire viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, #001f3f, #005aa7);
+            /* Initially hidden below the screen */
+            transform: translateY(100%);
+            /* Smooth transition for the transform property */
+            transition: transform 2.5s ease-out;
+            /* Position it behind the game but above the black background */
+            z-index: -1;
+        }
+        /* When active, slide the blue gradient up to fill the screen */
+        body.underwater-active::before {
+            transform: translateY(0%);
         }
         .game-container {
             position: relative;
@@ -201,7 +224,7 @@
             height: 14%;
             cursor: pointer;
         }
-        /* MODIFIED: Styles for the audio control buttons to look like BLUE soap bubbles */
+        /* Styles for the audio control buttons to look like BLUE soap bubbles */
         .audio-control-btn {
             position: fixed;
             width: var(--directionBtnWidth);
@@ -736,9 +759,13 @@
             if (backgroundAudio.paused) {
                 backgroundAudio.play();
                 audioPlayBtn.classList.add('playing');
+                // Add class to body for background change
+                document.body.classList.add('underwater-active');
             } else {
                 backgroundAudio.pause();
                 audioPlayBtn.classList.remove('playing');
+                // Remove class from body to revert background
+                document.body.classList.remove('underwater-active');
             }
         });
         audioRestartBtn.addEventListener("click", () => {
@@ -746,6 +773,8 @@
             if (backgroundAudio.paused) {
                 backgroundAudio.play();
                 audioPlayBtn.classList.add('playing');
+                // Also add class here in case user restarts from a paused state
+                document.body.classList.add('underwater-active');
             }
         });
         audioDownloadBtn.addEventListener("click", () => {
