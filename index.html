@@ -113,7 +113,6 @@
             margin-top: 18%;
             margin-bottom: 28%;
         }
-        /* MODIFICATION START: CSS for the glowing hint animation */
         @keyframes glowing-animation {
             0%, 100% {
                 box-shadow: 0 0 5px #ae1921, 0 0 10px #ae1921;
@@ -125,7 +124,6 @@
         .start-btn.glowing-hint {
             animation: glowing-animation 1.5s ease-in-out;
         }
-        /* MODIFICATION END */
         .direction-btn {
             border-radius: 50%;
             cursor: pointer;
@@ -685,8 +683,14 @@
         }
         // --- INITIALIZE GAME and EVENT LISTENERS ---
         const game = new Game();
+        function clearHint() {
+            if (hintTimer) {
+                clearTimeout(hintTimer);
+                hintTimer = null;
+            }
+        }
         function handleMove(moveFn1, moveFn2) {
-            clearTimeout(hintTimer); // Clear hint on any interaction
+            clearHint();
             if (game.isEnded) return;
             if (!game.gameStarted) {
                 game.start();
@@ -701,7 +705,7 @@
         rightBottomBtn.addEventListener("click", () => handleMove(game.wolf.moveRight, game.wolf.moveDown));
         rightTopBtn.addEventListener("click", () => handleMove(game.wolf.moveRight, game.wolf.moveUp));
         startBtn1.addEventListener("click", () => {
-            clearTimeout(hintTimer); // Clear hint on any interaction
+            clearHint();
             if (game.isEnded) {
                 location.reload();
             }
@@ -712,7 +716,7 @@
             }
         });
         startBtn2.addEventListener("click", () => {
-            clearTimeout(hintTimer); // Clear hint on any interaction
+            clearHint();
             if (game.isEnded) {
                 location.reload();
             }
@@ -806,17 +810,29 @@
             audioDownloadBtn.style.top = `${downloadBtnTop}px`;
         }
         function pleaseRotate() {
-            // Use a common mobile/tablet breakpoint.
-            if (window.innerWidth <= 768) {
-                // Check if height is greater than width (portrait mode).
-                if (window.innerHeight > window.innerWidth) {
-                    modalElement.classList.add("shown");
-                } else {
-                    modalElement.classList.remove("shown");
-                }
-            } else {
-                // On wider screens, always hide the modal.
+            const isMobile = window.innerWidth <= 768;
+            const isPortrait = window.innerHeight > window.innerWidth;
+
+            if (isMobile && isPortrait) {
+                modalElement.classList.add("shown");
+                // If user rotates back to portrait, cancel any pending hint
+                clearHint();
+            } else { 
+                // This is the condition for being horizontal or on a large screen
                 modalElement.classList.remove("shown");
+                
+                // If screen is correct, game hasn't started, and a hint isn't already set,
+                // then set the hint timer.
+                if (!game.gameStarted && !hintTimer) {
+                    hintTimer = setTimeout(() => {
+                        if (!game.gameStarted) { // Re-check in case of race conditions
+                            startBtn1.classList.add('glowing-hint');
+                            setTimeout(() => {
+                                startBtn1.classList.remove('glowing-hint');
+                            }, 1500); // Must match CSS animation duration
+                        }
+                    }, 2000);
+                }
             }
         }
         closeModalBtn.addEventListener("click", () => {
@@ -829,17 +845,6 @@
         window.addEventListener("load", () => {
             responsibility();
             pleaseRotate();
-
-            // Set a timer to hint the user after 2 seconds of inactivity
-            hintTimer = setTimeout(() => {
-                if (!game.gameStarted) {
-                    startBtn1.classList.add('glowing-hint');
-                    // Remove the class after the animation completes to keep the DOM clean
-                    setTimeout(() => {
-                        startBtn1.classList.remove('glowing-hint');
-                    }, 1500); // This duration should match the CSS animation duration
-                }
-            }, 2000);
         });
     </script>
 </body>
