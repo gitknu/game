@@ -201,34 +201,32 @@
             height: 14%;
             cursor: pointer;
         }
-        /* Styles for the audio control buttons */
+        /* MODIFIED: Styles for the audio control buttons to look like BLUE soap bubbles */
         .audio-control-btn {
             position: fixed;
             width: var(--directionBtnWidth);
             height: var(--directionBtnHeight);
-            background: linear-gradient(to top right, #520000, #cd222d 50%, #ecdfdf 95%);
-            border-width: var(--directionBtnBorderWidth);
-            border-style: solid;
-            border-color: #692424;
-            border-top: none;
-            border-right: none;
-            outline-width: var(--directionBtnOutlineWidth);
-            outline-color: #cd222d;
-            outline-style: solid;
+            background: radial-gradient(circle at 30% 30%, rgba(170, 210, 255, 0.8), rgba(65, 105, 225, 0.4) 80%); /* Blueish gradient */
+            border: 2px solid rgba(200, 225, 255, 0.7); /* Lighter blue border */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25), inset 0 3px 6px rgba(135, 206, 250, 0.6); /* Sky blue inner highlight */
             border-radius: 50%;
             cursor: pointer;
             z-index: 10;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
-            transition: background 0.2s, transform 0.1s ease-out;
+            color: #ffffff; /* White icons for better contrast on blue */
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Add shadow to icon */
+            transition: all 0.2s ease-out; /* Unified transition */
         }
         .audio-control-btn:hover {
-            background: linear-gradient(to top right, #520000, #cd222d 55%, #ecdfdf 99%);
+            background: radial-gradient(circle at 30% 30%, rgba(190, 225, 255, 0.9), rgba(85, 125, 245, 0.5) 80%);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.35), inset 0 3px 6px rgba(175, 226, 255, 0.7);
+            transform: scale(1.05); /* Slightly enlarge on hover */
         }
         .audio-control-btn:active {
             transform: scale(0.9);
+            transition-duration: 0.1s;
         }
         /* Base styles for BOTH pseudo-elements for stacking and centering */
         #audioPlayBtn::before,
