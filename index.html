@@ -83,6 +83,17 @@
             /* FIX: Background color remains, but image is moved to an overlay */
             background-color:rgb(0, 0, 0);
         }
+        /* ADDED: New element for the background plate */
+        #background-plate {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #b5b5b5;
+            z-index: 0;
+            border-radius: 20px;
+        }
         /* FIX: New pseudo-element to act as the overlay */
         .game-container::after {
             content: '';
@@ -535,6 +546,7 @@
     <audio id="backgroundAudio" src="https://gitknu.github.io/game/audio_inst.wav" loop></audio>
 
     <main class="game-container">
+        <div id="background-plate"></div>
         <div class="start-btns-box">
             <button id="startBtn1" class="start-btn"></button>
             <p class="start-btn-caption">игра A</p>
@@ -590,7 +602,7 @@
         backgroundAudio.volume = 0.1; // Set background audio volume to 10%
         let hasAudioBeenPlayed = false; // Flag to track if audio has started
         let hintTimer = null; // Timer for the glowing button hint
-        let musicHintTimer = null; // EDITED: Timer for the music button hint
+        let musicHintTimer = null; // Timer for the music button hint
         let gifHintTimer = null; // Timer for the hint GIF
 
         // --- GAME CONSTANTS ---
@@ -733,7 +745,7 @@
         }
         // --- INITIALIZE GAME and EVENT LISTENERS ---
         const game = new Game();
-        // EDITED: Updated function to clear all hint timers and classes
+        // Updated function to clear all hint timers and classes
         function clearHint() {
             if (hintTimer) {
                 clearTimeout(hintTimer);
@@ -787,7 +799,7 @@
         });
         // Event listeners for the audio control buttons
         audioPlayBtn.addEventListener("click", () => {
-            clearHint(); // EDITED: Clear any pending hints on click
+            clearHint(); // Clear any pending hints on click
             if (!hasAudioBeenPlayed) {
                 audioRestartBtn.classList.add('visible');
                 audioDownloadBtn.classList.add('visible');
@@ -843,7 +855,7 @@
                                         startBtn1.classList.remove('glowing-hint');
                                     }, 1500); // Must match CSS animation duration
 
-                                    // EDITED: Schedule music button hint 3.5 seconds after red hint ends
+                                    // Schedule music button hint 3.5 seconds after red hint ends
                                     musicHintTimer = setTimeout(() => {
                                         if (!game.gameStarted && !hasAudioBeenPlayed) {
                                             audioPlayBtn.classList.add('glowing-blue-hint');
