@@ -268,7 +268,6 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            
             /* Smooth transition */
             transition: opacity 0.3s ease-in-out;
         }
@@ -541,7 +540,7 @@
         #bubble-container {
             position: fixed;
             bottom: 0;
-            left: 0;
+            left: 50px;
             width: 250px;
             height: 300px;
             opacity: 0; /* Hidden by default */
@@ -607,7 +606,6 @@
     <button id="audioRestartBtn" class="audio-control-btn"></button>
     <button id="audioDownloadBtn" class="audio-control-btn"></button>
     <audio id="backgroundAudio" src="https://gitknu.github.io/game/audio_inst.wav" loop></audio>
-
     <main class="game-container">
         <div id="background-plate"></div>
         <div class="start-btns-box">
@@ -673,7 +671,6 @@
         const rightBottomBtn = document.getElementById("rightBottomBtn");
         const closeModalBtn = document.getElementById("closeModalBtn");
         const handGif = document.getElementById("handGif");
-        const bubbleContainer = document.getElementById("bubble-container");
         // Audio elements
         const audioPlayBtn = document.getElementById("audioPlayBtn");
         const audioRestartBtn = document.getElementById("audioRestartBtn");
@@ -1073,11 +1070,6 @@
                 handGif.classList.remove('visible'); // Ensure it's visually hidden
                 if (gifHintTimer) clearTimeout(gifHintTimer); // Stop the timer
             }
-            
-            // --- POSITION BUBBLES ---
-            const bubbleContainerWidth = bubbleContainer.offsetWidth;
-            const bubbleLeftPosition = (leftSpace - bubbleContainerWidth) / 2;
-            bubbleContainer.style.left = `${bubbleLeftPosition}px`;
         }
         function pleaseRotate() {
             const isMobile = window.innerWidth <= 768;
