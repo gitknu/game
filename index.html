@@ -766,6 +766,9 @@
         let underwaterTimeoutId = null; // Timer for showing bubbles
         // ADDED: Flag to show instructions modal only once
         let hasShownInstructions = false;
+        // ADDED: Master flag to control the entire hint sequence
+        let hintSequenceHasBeenInitiated = false;
+
 
         // --- GAME CONSTANTS ---
         const EGG_FREQUENCY_CHANGE_A = 250;
@@ -926,7 +929,7 @@
         }
         // --- INITIALIZE GAME and EVENT LISTENERS ---
         const game = new Game();
-        // Updated function to clear all hint timers and classes
+        // MODIFIED: Updated function to clear all hint timers and classes, including the master flag
         function clearHint() {
             if (hintTimer) {
                 clearTimeout(hintTimer);
@@ -936,8 +939,14 @@
                 clearTimeout(musicHintTimer);
                 musicHintTimer = null;
             }
+            if (gifHintTimer) {
+                clearTimeout(gifHintTimer);
+                gifHintTimer = null;
+            }
+            handGif.classList.remove('visible');
             startBtn1.classList.remove('glowing-hint');
             audioPlayBtn.classList.remove('glowing-blue-hint');
+            hintSequenceHasBeenInitiated = false; // Reset the master flag
         }
         function handleMove(moveFn1, moveFn2) {
             clearHint();
@@ -1120,7 +1129,7 @@
                 userHasSwipedUp = true;
             } else {
                 // If it was any other touch action (tap, wrong swipe), restart the inactivity timer to show the hint again later.
-                showGifWithDelay();
+                tryStartHintSequence();
             }
         }, { passive: true });
 
@@ -1196,8 +1205,6 @@
                 const gifLeft = (leftSpace - gifWidth) / 2;
                 handGif.style.left = `${gifLeft}px`;
                 
-                // Now that we know there's space, start the inactivity timer.
-                showGifWithDelay();
             } else {
                 // Hide the GIF if there isn't enough room
                 handGif.style.display = 'none';
@@ -1205,47 +1212,52 @@
                 if (gifHintTimer) clearTimeout(gifHintTimer); // Stop the timer
             }
         }
+        
+        // ADDED: New function to be the single entry point for starting all hint sequences.
+        function tryStartHintSequence() {
+            // Stop if:
+            // - hints have already been initiated
+            // - the game is already running
+            // - any modal is currently visible
+            if (hintSequenceHasBeenInitiated || game.gameStarted || modalElement.classList.contains('shown') || instructionsModalElement.classList.contains('shown')) {
+                return;
+            }
+            // If all checks pass, set the flag and start the sequence.
+            hintSequenceHasBeenInitiated = true;
+            showGifWithDelay();
+        }
+
+        // MODIFIED: This function now only manages modals and clears hints.
         function pleaseRotate() {
             const isMobile = window.innerWidth <= 768;
             const isPortrait = window.innerHeight > window.innerWidth;
 
             if (isMobile && isPortrait) {
                 modalElement.classList.add("shown");
-                // If user rotates back to portrait, cancel any pending hint
+                // If user rotates to portrait, cancel any and all pending hints.
                 clearHint();
-                // Also cancel the GIF hint
-                handGif.classList.remove('visible');
-                if (gifHintTimer) clearTimeout(gifHintTimer);
             } else { 
-                // This is the condition for being horizontal or on a large screen
                 modalElement.classList.remove("shown");
 
-                // ADDED: Show instructions modal only once after rotating
+                // Show the instructions modal, but only once.
                 if (!hasShownInstructions && !game.gameStarted) {
                     instructionsModalElement.classList.add("shown");
                     hasShownInstructions = true;
                 }
                 
-                // If screen is correct, game hasn't started, and a hint isn't already set,
-                // then set the hint timer.
-                if (!game.gameStarted && !hintTimer) {
-                    hintTimer = setTimeout(() => {
-                        if (!game.gameStarted) { // Re-check in case of race conditions
-                            startBtn1.classList.add('glowing-hint');
-                            setTimeout(() => {
-                                startBtn1.classList.remove('glowing-hint');
-                            }, 1500); // Must match CSS animation duration
-                        }
-                    }, 4000);
-                }
+                // Now that modals are handled, attempt to start the hint sequence.
+                // It will only run if the conditions are right (e.g., no modals visible).
+                tryStartHintSequence();
             }
         }
         closeModalBtn.addEventListener("click", () => {
             modalElement.classList.remove("shown");
         });
-        // ADDED: Event listener for the new instructions modal close button
+        // MODIFIED: Event listener for instructions modal now triggers the hint sequence.
         closeInstructionsModalBtn.addEventListener("click", () => {
             instructionsModalElement.classList.remove("shown");
+            // Since the user has closed the last instructional modal, now we can show hints.
+            tryStartHintSequence();
         });
         window.addEventListener("resize", () => {
             responsibility();
