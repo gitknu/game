@@ -51,7 +51,7 @@
             position: relative; /* Needed for z-index stacking */
             z-index: 0;
         }
-        /* MODIFIED: Switched to a pseudo-element for the slide-up background effect */
+        /* MODIFIED: Changed the background effect to a fade-in */
         body::before {
             content: '';
             position: fixed; /* Covers the entire viewport */
@@ -60,16 +60,16 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(to top, #001f3f, #005aa7);
-            /* Initially hidden below the screen */
-            transform: translateY(100%);
-            /* Smooth transition for the transform property */
-            transition: transform 2.5s ease-out;
+            /* Initially transparent */
+            opacity: 0;
+            /* Smooth transition for the opacity property */
+            transition: opacity 2.5s ease-out;
             /* Position it behind the game but above the black background */
             z-index: -1;
         }
-        /* When active, slide the blue gradient up to fill the screen */
+        /* When active, fade in the blue gradient */
         body.underwater-active::before {
-            transform: translateY(0%);
+            opacity: 1;
         }
         .game-container {
             position: relative;
@@ -668,6 +668,69 @@
                 transform: scale(0.8) translateY(-100%);
             }
         }
+        
+        /* --- ADDED: WAVE STYLES --- */
+        #wave-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            z-index: -1;
+            pointer-events: none;
+            /* Initially hidden below the screen */
+            transform: translateY(100%);
+            /* Smooth transition for the transform property */
+            transition: transform 2.5s ease-out;
+        }
+        /* When active, slide the waves up */
+        body.underwater-active #wave-container {
+            transform: translateY(0%);
+        }
+        .waves {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 100px;
+        }
+        .waves svg {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+        }
+        .waves use {
+          animation: wavewave 5s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
+          fill: #005aa7; /* Match the lighter blue of the gradient */
+          opacity: 0.7;
+        }
+        .waves.back use:nth-child(2) {
+          animation-delay: -4s;
+          animation-duration: 13s;
+        }
+        .waves.back use:nth-child(3) {
+          animation-delay: -5s;
+          animation-duration: 20s;
+        }
+        .waves.front {
+            /* z-index is not needed here as stacking is handled by document order */
+        }
+        .waves.front use:nth-child(2) {
+          animation-delay: -2s;
+          animation-duration: 7s;
+        }
+        .waves.front use:nth-child(3) {
+          animation-delay: -3s;
+          animation-duration: 10s;
+        }
+        @keyframes wavewave {
+          0% {
+            transform: translate(-90px);
+          }
+          100% {
+            transform: translate(85px);
+          }
+        }
     </style>
 </head>
 <body>
@@ -733,6 +796,29 @@
             <circle cx="30" cy="296.6" r="24.14" class="ocean-bubble"/>
             <circle cx="15" cy="290" r="19" class="ocean-bubble"/>
         </svg>
+    </div>
+
+    <!-- ADDED: Waves HTML -->
+    <div id="wave-container">
+        <div class="waves back">
+            <svg viewBox="0 24 150 28" preserveAspectRatio="none">
+                <defs>
+                    <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                </defs>
+                <use xlink:href="#gentle-wave" x="48" y="5"></use>
+                <use xlink:href="#gentle-wave" x="48" y="7"></use>
+            </svg>
+        </div>
+        <div class="waves front">
+            <svg viewBox="0 24 150 28" preserveAspectRatio="none">
+                <!-- The same path ID is okay here because it's scoped to this SVG element -->
+                <defs>
+                    <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                </defs>
+                <use xlink:href="#gentle-wave" x="48" y="0"></use>
+                <use xlink:href="#gentle-wave" x="48" y="3"></use>
+            </svg>
+        </div>
     </div>
 
     <script>
