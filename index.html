@@ -378,13 +378,26 @@
             z-index: 0; /* Position the game screen behind the overlay */
         }
         
-        /* --- MODIFIED: Styles for the "off" state and slower blink-on animation --- */
+        /* --- MODIFIED: Styles for the "off" state and non-smooth blink-on animation --- */
         @keyframes blink-on {
-            0%   { opacity: 0; }
-            25%  { opacity: 1; } /* First blink ON */
-            50%  { opacity: 0; } /* First blink OFF */
-            75%  { opacity: 1; } /* Second blink ON */
-            100% { opacity: 1; } /* Stays ON */
+            /* ON for 0.5s */
+            0%      { opacity: 1; }
+            33.33%  { opacity: 1; }
+
+            /* OFF for 0.25s */
+            33.34%  { opacity: 0; }
+            50%     { opacity: 0; }
+
+            /* ON for 0.5s */
+            50.01%  { opacity: 1; }
+            83.33%  { opacity: 1; }
+
+            /* OFF for 0.25s */
+            83.34%  { opacity: 0; }
+            99.9%   { opacity: 0; }
+
+            /* Final permanent ON state */
+            100%    { opacity: 1; }
         }
 
         /* Initially hide the elements */
@@ -395,7 +408,7 @@
             opacity: 0;
         }
 
-        /* When the game turns on, apply the slower blink animation */
+        /* When the game turns on, apply the slower, non-smooth blink animation */
         #game-wrap.game-on .wolf,
         #game-wrap.game-on .basket,
         #game-wrap.game-on #score,
@@ -1127,7 +1140,7 @@
                 // Hide the GIF if there isn't enough room
                 handGif.style.display = 'none';
                 handGif.classList.remove('visible'); // Ensure it's visually hidden
-                if (gifHintTimer) clearTimeout(gifHintimer); // Stop the timer
+                if (gifHintTimer) clearTimeout(gifHintTimer); // Stop the timer
             }
         }
         function pleaseRotate() {
@@ -1140,7 +1153,7 @@
                 clearHint();
                 // Also cancel the GIF hint
                 handGif.classList.remove('visible');
-                if (gifHintimer) clearTimeout(gifHintimer);
+                if (gifHintTimer) clearTimeout(gifHintTimer);
             } else { 
                 // This is the condition for being horizontal or on a large screen
                 modalElement.classList.remove("shown");
