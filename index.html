@@ -660,14 +660,16 @@
             background: linear-gradient(to top, #001f3f, #005aa7);
             z-index: -1;
             pointer-events: none;
-            /* Initially hidden below the screen */
+            /* Initially hidden below the screen AND invisible */
             transform: translateY(100%);
-            /* Smooth transition for the transform property */
-            transition: transform 2.5s ease-out;
+            opacity: 0;
+            /* Smooth transition for BOTH properties */
+            transition: transform 2.5s ease-out, opacity 2s ease-out;
         }
-        /* When active, slide the water and waves up */
+        /* When active, slide the water and waves up and fade them in */
         body.underwater-active #water-container {
             transform: translateY(0%);
+            opacity: 1;
         }
         .waves {
             position: absolute;
@@ -1000,7 +1002,7 @@
                 hintTimer = null;
             }
             if (musicHintTimer) {
-                clearTimeout(musicHintTimer);
+                clearTimeout(musicHintimer);
                 musicHintTimer = null;
             }
             if (gifHintTimer) {
