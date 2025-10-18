@@ -656,7 +656,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: calc(100vh + 100px); /* MODIFIED: Increased height to hide waves above screen */
+            height: calc(100vh + 100px); /* Increased height to hide waves above screen */
             background: linear-gradient(to top, #001f3f, #005aa7);
             z-index: -1;
             pointer-events: none;
@@ -668,7 +668,7 @@
         }
         /* When active, slide the water and waves up and fade them in */
         body.underwater-active #water-container {
-            transform: translateY(-100px); /* MODIFIED: Move up to hide the 100px waves */
+            transform: translateY(0); /* MODIFIED: Transition to its natural position */
             opacity: 1;
         }
         .waves {
