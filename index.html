@@ -546,9 +546,9 @@
             opacity: 0; /* Hidden by default */
             pointer-events: none; /* Make it non-interactive */
             z-index: -1; /* Position it behind the game console but above the black background */
-            transition: opacity 0.5s ease-out; /* MODIFIED: Faster transition for the bubbles themselves */
+            transition: opacity 0.5s ease-out;
         }
-        /* MODIFIED: Only show bubbles when the 'active' class is present */
+        /* Only show bubbles when the 'active' class is present */
         #bubble-container.active {
             opacity: 1;
         }
@@ -676,15 +676,13 @@
         const audioRestartBtn = document.getElementById("audioRestartBtn");
         const audioDownloadBtn = document.getElementById("audioDownloadBtn");
         const backgroundAudio = document.getElementById("backgroundAudio");
-        const bubbleContainer = document.getElementById("bubble-container"); // MODIFIED: Added bubble container
+        const bubbleContainer = document.getElementById("bubble-container");
         backgroundAudio.volume = 0.1; // Set background audio volume to 10%
         let hasAudioBeenPlayed = false; // Flag to track if audio has started
         let hintTimer = null; // Timer for the glowing button hint
         let musicHintTimer = null; // Timer for the music button hint
         let gifHintTimer = null; // Timer for the hint GIF
-        // MODIFIED: Added timers for animation sequencing
-        let surfaceTimeoutId = null; 
-        let underwaterTimeoutId = null;
+        let underwaterTimeoutId = null; // Timer for showing bubbles
 
         // --- GAME CONSTANTS ---
         const EGG_FREQUENCY_CHANGE_A = 250;
@@ -878,32 +876,19 @@
                 game.gameType = "B";
             }
         });
-
-        // --- MODIFIED: BUBBLE AND WATER ANIMATION LOGIC ---
+        
+        // --- BUBBLE AND WATER ANIMATION LOGIC ---
         function goUnderwater() {
-            clearTimeout(surfaceTimeoutId); // Cancel any pending surface command
-            clearTimeout(underwaterTimeoutId); // Clear previous underwater timer
+            clearTimeout(underwaterTimeoutId); // Clear any previous timer
 
             document.body.classList.add('underwater-active');
-            // Set a timer to show bubbles after the water has risen
+            // Set a timer to show bubbles *after* the water has risen
             underwaterTimeoutId = setTimeout(() => {
                 bubbleContainer.classList.add('active');
-            }, 2500); // 2.5s transition time from CSS
+            }, 2500); // Match the 2.5s transition time from CSS
         }
 
-        function surface() {
-            clearTimeout(underwaterTimeoutId); // Cancel any pending underwater command
-            clearTimeout(surfaceTimeoutId); // Clear previous surface timer
-
-            // Hide the bubbles first
-            bubbleContainer.classList.remove('active');
-            // Set a timer to lower the water after bubbles have had time to disappear
-            surfaceTimeoutId = setTimeout(() => {
-                document.body.classList.remove('underwater-active');
-            }, 7000); // 7s bubble animation time from CSS
-        }
-
-        // MODIFIED: Event listeners for the audio control buttons
+        // --- CORRECTED: Event listeners for the audio control buttons ---
         audioPlayBtn.addEventListener("click", () => {
             clearHint(); // Clear any pending hints on click
             if (!hasAudioBeenPlayed) {
@@ -911,6 +896,7 @@
                 audioDownloadBtn.classList.add('visible');
                 hasAudioBeenPlayed = true;
             }
+
             if (backgroundAudio.paused) {
                 backgroundAudio.play();
                 audioPlayBtn.classList.add('playing');
@@ -918,7 +904,16 @@
             } else {
                 backgroundAudio.pause();
                 audioPlayBtn.classList.remove('playing');
-                surface();
+
+                // Immediately revert the background to black
+                document.body.classList.remove('underwater-active');
+
+                // Immediately hide the bubbles
+                bubbleContainer.classList.remove('active');
+
+                // IMPORTANT: Cancel any pending command to show the bubbles.
+                // This prevents them from appearing after the screen is already black.
+                clearTimeout(underwaterTimeoutId);
             }
         });
 
