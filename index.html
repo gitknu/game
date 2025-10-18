@@ -205,21 +205,20 @@
             inset: 0;
             top: -100%;
             transition: 300ms;
-            /* MODIFIED: Replaced background with notepaper image */
             background-image: url('https://img.freepik.com/free-vector/blank-white-notepaper-design_53876-118304.jpg');
             background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* ADDED: Shadow for depth */
-            border-radius: 10px; /* ADDED: Soften the image edges */
-            color: #2c2c2c; /* MODIFIED: Dark text for readability */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-radius: 10px;
+            color: #2c2c2c;
             display: block;
             width: calc(var(--gameContainerWidth) * 0.8);
             height: calc(var(--gameContainerHeight) * 0.7);
             left: 50%;
             translate: -50% 0;
             z-index: 3;
-            padding: 15%; /* MODIFIED: Adjusted padding for the new background */
+            padding: 15%;
             text-align: center;
             display: flex;
             align-items: center;
@@ -239,6 +238,8 @@
             width: 14%;
             height: 14%;
             cursor: pointer;
+            /* MODIFIED: Added filter to make the close icon bold and red */
+            filter: invert(15%) sepia(90%) saturate(5000%) hue-rotate(350deg) brightness(70%) contrast(150%) drop-shadow(0 0 1px rgba(200,0,0,0.5));
         }
         /* Styles for the audio control buttons to look like BLUE soap bubbles */
         .audio-control-btn {
