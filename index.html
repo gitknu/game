@@ -213,12 +213,13 @@
             border-radius: 10px;
             color: #2c2c2c;
             display: block;
-            width: calc(var(--gameContainerWidth) * 0.8);
+            /* MODIFIED: Increased width and adjusted padding */
+            width: calc(var(--gameContainerWidth) * 0.9);
             height: calc(var(--gameContainerHeight) * 0.7);
+            padding: 12% 10%;
             left: 50%;
             translate: -50% 0;
             z-index: 3;
-            padding: 15%;
             text-align: center;
             display: flex;
             align-items: center;
@@ -714,7 +715,8 @@
 
     <!-- ADDED: New instructions modal -->
     <div id="instructionsModal">
-        <p>Зробіть свайп знизу вгору (у лівій частині екрану), увімкніть гру (та музику за бажанням). Підказки на екрані покажуть, як саме. Приємної гри!</p>
+        <!-- MODIFIED: Updated the instructional text with line breaks -->
+        <p>Зробіть свайп знизу вгору (у лівій частині екрану).<br><br>Далі увімкніть гру (та музику за бажанням).<br><br>Підказки на екрані покажуть, як саме)</p>
         <img id="closeInstructionsModalBtn" src="https://hanka8.github.io/Nu-pogodi/assets/close.svg" alt="close">
     </div>
 
