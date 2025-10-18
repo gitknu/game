@@ -378,19 +378,29 @@
             z-index: 0; /* Position the game screen behind the overlay */
         }
         
-        /* --- ADDED: Styles for the "off" state of the game screen --- */
-        #game-wrap .wolf,
-        #game-wrap .basket,
-        #game-wrap #score,
-        #game-wrap #loss {
-            transition: opacity 0.4s ease-in; /* Smooth fade-in transition */
+        /* --- MODIFIED: Styles for the "off" state and slower blink-on animation --- */
+        @keyframes blink-on {
+            0%   { opacity: 0; }
+            25%  { opacity: 1; } /* First blink ON */
+            50%  { opacity: 0; } /* First blink OFF */
+            75%  { opacity: 1; } /* Second blink ON */
+            100% { opacity: 1; } /* Stays ON */
         }
 
+        /* Initially hide the elements */
         #game-wrap.game-off .wolf,
         #game-wrap.game-off .basket,
         #game-wrap.game-off #score,
         #game-wrap.game-off #loss {
-            opacity: 0; /* Hide elements when game is off */
+            opacity: 0;
+        }
+
+        /* When the game turns on, apply the slower blink animation */
+        #game-wrap.game-on .wolf,
+        #game-wrap.game-on .basket,
+        #game-wrap.game-on #score,
+        #game-wrap.game-on #loss {
+            animation: blink-on 1.5s forwards;
         }
         /* --- END of "off" state styles --- */
 
@@ -859,7 +869,8 @@
             clearHint();
             if (game.isEnded) return;
             if (!game.gameStarted) {
-                gameWrapElement.classList.remove("game-off"); // Turn on screen on first move
+                gameWrapElement.classList.remove("game-off"); 
+                gameWrapElement.classList.add("game-on");
                 game.start();
                 game.gameStarted = true;
             }
@@ -872,7 +883,6 @@
         rightBottomBtn.addEventListener("click", () => handleMove(game.wolf.moveRight, game.wolf.moveDown));
         rightTopBtn.addEventListener("click", () => handleMove(game.wolf.moveRight, game.wolf.moveUp));
         
-        // MODIFIED: Added logic to turn on the game screen
         startBtn1.addEventListener("click", () => {
             clearHint();
             if (game.isEnded) {
@@ -880,6 +890,7 @@
             }
             if (!game.gameStarted) {
                 gameWrapElement.classList.remove("game-off");
+                gameWrapElement.classList.add("game-on");
                 game.start();
                 game.gameStarted = true;
                 game.gameType = "A";
@@ -892,6 +903,7 @@
             }
             if (!game.gameStarted) {
                 gameWrapElement.classList.remove("game-off");
+                gameWrapElement.classList.add("game-on");
                 game.eggSpeed = 3000;
                 game.eggFrequency = 2500;
                 game.start();
@@ -1115,7 +1127,7 @@
                 // Hide the GIF if there isn't enough room
                 handGif.style.display = 'none';
                 handGif.classList.remove('visible'); // Ensure it's visually hidden
-                if (gifHintTimer) clearTimeout(gifHintTimer); // Stop the timer
+                if (gifHintTimer) clearTimeout(gifHintimer); // Stop the timer
             }
         }
         function pleaseRotate() {
@@ -1128,7 +1140,7 @@
                 clearHint();
                 // Also cancel the GIF hint
                 handGif.classList.remove('visible');
-                if (gifHintTimer) clearTimeout(gifHintTimer);
+                if (gifHintimer) clearTimeout(gifHintimer);
             } else { 
                 // This is the condition for being horizontal or on a large screen
                 modalElement.classList.remove("shown");
