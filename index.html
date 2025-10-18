@@ -205,21 +205,26 @@
             inset: 0;
             top: -100%;
             transition: 300ms;
-            background-color: rgba(0, 0, 0, 0.692);
-            backdrop-filter: blur(5px);
-            color: #faead6;
+            /* MODIFIED: Replaced background with notepaper image */
+            background-image: url('https://img.freepik.com/free-vector/blank-white-notepaper-design_53876-118304.jpg');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* ADDED: Shadow for depth */
+            border-radius: 10px; /* ADDED: Soften the image edges */
+            color: #2c2c2c; /* MODIFIED: Dark text for readability */
             display: block;
             width: calc(var(--gameContainerWidth) * 0.8);
             height: calc(var(--gameContainerHeight) * 0.7);
             left: 50%;
             translate: -50% 0;
             z-index: 3;
-            padding: 5%;
+            padding: 15%; /* MODIFIED: Adjusted padding for the new background */
             text-align: center;
             display: flex;
             align-items: center;
-            font-size: 1.5rem; /* MODIFIED: Font size increased */
-            font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', monospace; /* ADDED: Monospaced font */
+            font-size: 1.5rem;
+            font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', monospace;
         }
         #modal.shown {
             opacity: 1;
@@ -915,7 +920,7 @@
                 hintTimer = null;
             }
             if (musicHintTimer) {
-                clearTimeout(musicHintTimer); // FIX: Corrected typo from musicHintimer to musicHintTimer
+                clearTimeout(musicHintTimer);
                 musicHintTimer = null;
             }
             startBtn1.classList.remove('glowing-hint');
@@ -1037,7 +1042,7 @@
             // If user has already swiped, do not proceed to show the GIF hint.
             if (userHasSwipedUp) return;
 
-            if (gifHintTimer) clearTimeout(gifHintTimer); // FIX: Corrected typo from gifHintimer to gifHintTimer
+            if (gifHintTimer) clearTimeout(gifHintTimer);
             // Check if the element is meant to be displayed (i.e., has space)
             if (window.getComputedStyle(handGif).display !== 'none') {
                 gifHintTimer = setTimeout(() => {
@@ -1079,7 +1084,7 @@
         window.addEventListener('touchstart', (e) => {
             // On any touch, immediately hide the GIF and clear its timer
             handGif.classList.remove('visible');
-            if (gifHintTimer) clearTimeout(gifHintTimer); // FIX: Corrected typo from gifHintimer to gifHintTimer
+            if (gifHintTimer) clearTimeout(gifHintTimer);
 
             // Record the starting coordinates if the hint hasn't been permanently disabled yet
             if (!userHasSwipedUp) {
