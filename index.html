@@ -378,7 +378,7 @@
             z-index: 0; /* Position the game screen behind the overlay */
         }
         
-        /* --- MODIFIED: Styles for the "off" state and non-smooth blink-on animation --- */
+        /* --- MODIFIED: Styles for the "off" state and blink animations --- */
         @keyframes blink-on {
             /* ON for 0.5s */
             0%      { opacity: 1; }
@@ -400,6 +400,21 @@
             100%    { opacity: 1; }
         }
 
+        /* ADDED: Blink-off animation */
+        @keyframes blink-off {
+            /* Starts ON */
+            0%, 25% { opacity: 1; }
+
+            /* Blink 1 OFF */
+            25.01%, 50% { opacity: 0; }
+
+            /* Blink 2 ON */
+            50.01%, 75% { opacity: 1; }
+
+            /* Stays OFF */
+            75.01%, 100% { opacity: 0; }
+        }
+
         /* Initially hide the elements */
         #game-wrap.game-off .wolf,
         #game-wrap.game-off .basket,
@@ -408,12 +423,20 @@
             opacity: 0;
         }
 
-        /* When the game turns on, apply the slower, non-smooth blink animation */
+        /* When the game turns on, apply the blink-on animation */
         #game-wrap.game-on .wolf,
         #game-wrap.game-on .basket,
         #game-wrap.game-on #score,
         #game-wrap.game-on #loss {
             animation: blink-on 1.5s forwards;
+        }
+
+        /* ADDED: Apply blink-off animation */
+        #game-wrap.game-blinking-off .wolf,
+        #game-wrap.game-blinking-off .basket,
+        #game-wrap.game-blinking-off #score,
+        #game-wrap.game-blinking-off #loss {
+            animation: blink-off 1.5s forwards;
         }
         /* --- END of "off" state styles --- */
 
@@ -768,21 +791,22 @@
                     }
                 }, this.eggFrequency);
             }
+            // MODIFIED: Replaced the game over screen with a blink-off animation
             end() {
                 this.isEnded = true;
+                clearInterval(this.intervalId); // Stop new eggs from being created
                 let gameOverSound = new Audio("https://hanka8.github.io/Nu-pogodi/sounds/gameOver.mp3");
                 gameOverSound.play();
-                const messageWrap = document.getElementById("message");
-                messageWrap.innerHTML = '';
-                const messageDiv = document.createElement('div');
-                const h3 = document.createElement('h3');
-                h3.textContent = 'Game Over';
-                const p = document.createElement('p');
-                p.innerHTML = 'Press GAME A or GAME B to restart';
-                messageDiv.appendChild(h3);
-                messageDiv.appendChild(p);
-                messageWrap.appendChild(messageDiv);
-                messageWrap.style.display = 'block';
+                
+                // Trigger the blink-off animation
+                gameWrapElement.classList.add("game-blinking-off");
+                
+                // After the animation finishes, reset the screen to the 'off' state.
+                setTimeout(() => {
+                    gameWrapElement.classList.remove("game-on");
+                    gameWrapElement.classList.remove("game-blinking-off");
+                    gameWrapElement.classList.add("game-off");
+                }, 1500); // Must match the animation duration
             }
             updateScore() {
                 this.score += 1;
