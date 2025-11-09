@@ -50,7 +50,6 @@
             font-family: 'Alegreya Sans SC', Tahoma, Arial, sans-serif;
             position: relative; /* Needed for z-index stacking */
             z-index: 0;
-            overflow: hidden; /* Prevent scrollbars from appearing during transitions */
         }
         .game-container {
             position: relative;
@@ -697,19 +696,18 @@
             transform: translateY(0);
             opacity: 1;
         }
-        /* ADDED: A new layer for the yellow background to enable smooth cross-fading */
-        #yellow-background {
+        /* OPTIMIZED: Using a pseudo-element for the yellow background is more lightweight */
+        #water-container::after {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            /* MODIFIED: Changed to a much softer, less "toxic" yellow gradient */
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: linear-gradient(to top, #FFD54F, #FFFDE7);
-            opacity: 0; /* Hidden by default */
-            transition: opacity 2s ease-out; /* This enables the smooth fade */
+            opacity: 0;
+            transition: opacity 2s ease-out;
+            z-index: 1;
         }
-        body.yellow-active #yellow-background {
+        body.yellow-active #water-container::after {
             opacity: 1; /* Fade in the yellow layer */
         }
         body.yellow-active #bubble-container {
@@ -835,7 +833,7 @@
 
     <!-- MODIFIED: Water and Waves HTML -->
     <div id="water-container">
-        <div id="yellow-background"></div> <!-- ADDED: New layer for the yellow background -->
+        <!-- REMOVED: The extra div for the yellow background is no longer needed -->
         <div class="waves back">
             <svg viewBox="0 24 150 28" preserveAspectRatio="none">
                 <defs>
@@ -1193,7 +1191,7 @@
         audioDownloadBtn.addEventListener("click", () => {
             const link = document.createElement('a');
             link.href = currentAudio.src;
-            link.download = `Nu-pogodi-music-${currentTrackIndex + 1}.wav`; 
+            link.download = `music_${currentTrackIndex + 1}.wav`; 
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
