@@ -1191,7 +1191,7 @@
         audioDownloadBtn.addEventListener("click", () => {
             const link = document.createElement('a');
             link.href = currentAudio.src;
-            link.download = `Nu-pogodi-music-${currentTrackIndex + 1}.wav`; 
+            link.download = `music${currentTrackIndex + 1}.wav`; 
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
