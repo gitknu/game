@@ -275,7 +275,8 @@
             left: 50%;
             /* Smooth transition */
             transition: opacity 0.3s ease-in-out;
-            font-size: 50%;
+            /* MODIFIED: Increased font size to scale with the button */
+            font-size: clamp(24px, min(7vw, 7vh), 42px);
         }
         /* Play Icon (using ::before) */
         #audioPlayBtn::before {
@@ -320,7 +321,8 @@
         }
         #audioRestartBtn::after, #audioDownloadBtn::after {
             font-weight: bold;
-            font-size: 55%;
+            /* MODIFIED: Increased font size to scale with the button */
+            font-size: clamp(26px, min(8vw, 8vh), 45px);
         }
         #audioRestartBtn::after {
             content: '↺';
