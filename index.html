@@ -50,7 +50,6 @@
             font-family: 'Alegreya Sans SC', Tahoma, Arial, sans-serif;
             position: relative; /* Needed for z-index stacking */
             z-index: 0;
-            overflow: hidden; /* Prevent scrollbars from appearing during transitions */
         }
         .game-container {
             position: relative;
@@ -210,12 +209,11 @@
             border-radius: 10px;
             color: #2c2c2c;
             display: block;
-            /* MODIFIED: Increased width and adjusted padding */
             width: calc(var(--gameContainerWidth) * 0.9);
             height: calc(var(--gameContainerHeight) * 0.7);
-            /* MODIFIED: Adjusted padding and font-size for better text fit */
             padding: 8% 10%;
-            font-size: clamp(1rem, 3.5vmin, 1.6rem);
+            /* MODIFIED: Tied font size directly to the console's multiplier for consistency */
+            font-size: calc(13px * var(--multiplier));
             left: 50%;
             translate: -50% 0;
             z-index: 4;
@@ -942,10 +940,10 @@
                 this.previousEggState = "";
                 this.gameType = "A";
                 this.intervalId = null;
-                this.isPaused = false; // ADDED: Pause state
+                this.isPaused = false;
             }
             start() {
-                if (this.isEnded || this.isPaused) return; // Prevent starting if paused or ended
+                if (this.isEnded || this.isPaused) return;
                 this.intervalId = setInterval(() => {
                     if (this.isEnded) {
                         clearInterval(this.intervalId);
@@ -1000,11 +998,11 @@
                     gameWrapElement.setAttribute('data-egg-' + i, 0);
                 }
             }
-            // ADDED: Pause and Resume methods
             pause() {
                 if (!this.gameStarted || this.isPaused || this.isEnded) return;
                 this.isPaused = true;
                 clearInterval(this.intervalId);
+                this.intervalId = null; // Clear intervalId to prevent resume conflicts
             }
             resume() {
                 if (!this.gameStarted || !this.isPaused || this.isEnded) return;
@@ -1072,25 +1070,26 @@
                 this.step = 0;
                 this.maxSteps = 5;
             }
-            // MODIFIED: fall() method now respects the pause state
             fall() {
                 const self = this;
-                const interval = setInterval(() => {
+                const fallInterval = setInterval(() => {
                     if (game.isEnded) {
-                        clearInterval(interval);
+                        clearInterval(fallInterval);
                         gameWrapElement.setAttribute('data-egg-' + self.eggIndex, 0);
                         return;
                     }
 
-                    if (!game.isPaused) { // Only advance the fall if the game is not paused
-                        self.step++;
-                        gameWrapElement.setAttribute('data-egg-' + self.eggIndex, self.step);
+                    if (game.isPaused) { // If paused, just exit the tick but don't clear the interval
+                        return;
+                    }
 
-                        if (self.step > self.maxSteps) {
-                            clearInterval(interval);
-                            gameWrapElement.setAttribute('data-egg-' + self.eggIndex, 0);
-                            game.wolf.checkCollision(self);
-                        }
+                    self.step++;
+                    gameWrapElement.setAttribute('data-egg-' + self.eggIndex, self.step);
+
+                    if (self.step > self.maxSteps) {
+                        clearInterval(fallInterval);
+                        gameWrapElement.setAttribute('data-egg-' + self.eggIndex, 0);
+                        game.wolf.checkCollision(self);
                     }
                 }, game.eggSpeed / (this.maxSteps + 1));
             }
@@ -1108,7 +1107,7 @@
         }
         function handleMove(moveFn1, moveFn2) {
             clearHint();
-            if (game.isEnded || game.isPaused) return; // Prevent movement when paused
+            if (game.isEnded || game.isPaused) return;
             if (!game.gameStarted) {
                 gameWrapElement.classList.remove("game-off"); 
                 gameWrapElement.classList.add("game-on");
@@ -1201,7 +1200,6 @@
             updateMusicVisuals();
         });
 
-        // MODIFIED: `audioNextBtn` listener with pause/resume logic
         audioNextBtn.addEventListener("click", () => {
             const wasPlaying = !currentAudio.paused;
             
@@ -1239,7 +1237,7 @@
         audioDownloadBtn.addEventListener("click", () => {
             const link = document.createElement('a');
             link.href = currentAudio.src;
-            link.download = `Nu-pogodi-music-${currentTrackIndex + 1}.wav`; 
+            link.download = `music_${currentTrackIndex + 1}.wav`; 
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
