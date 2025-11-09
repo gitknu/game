@@ -50,6 +50,7 @@
             font-family: 'Alegreya Sans SC', Tahoma, Arial, sans-serif;
             position: relative; /* Needed for z-index stacking */
             z-index: 0;
+            overflow: hidden; /* Prevent scrollbars from appearing during transitions */
         }
         .game-container {
             position: relative;
@@ -452,6 +453,29 @@
             animation: blink-off 1.5s forwards;
         }
         /* --- END of "off" state styles --- */
+        
+        /* ADDED: Styles for the pause overlay */
+        #pause-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(40, 40, 40, 0.7);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease-in-out;
+        }
+        #pause-overlay.visible {
+            opacity: 1;
+        }
+
 
         #game-wrap .basket {
             width: 80px;
@@ -782,6 +806,7 @@
         </div>
         <!-- MODIFIED: Added the 'game-off' class to hide elements initially -->
         <div id="game-wrap" class="game-off" data-bx="0" data-by="1" data-egg-0="0" data-egg-1="0" data-egg-2="0" data-egg-3="0" data-loss="0">
+            <div id="pause-overlay">❚❚</div> <!-- ADDED: Pause overlay -->
             <div class="basket"></div>
             <div class="wolf"></div>
             <div class="egg e-0"></div>
@@ -833,7 +858,7 @@
 
     <!-- MODIFIED: Water and Waves HTML -->
     <div id="water-container">
-        <!-- REMOVED: The extra div for the yellow background is no longer needed -->
+        <!-- The ::after pseudo-element will now handle the yellow background -->
         <div class="waves back">
             <svg viewBox="0 24 150 28" preserveAspectRatio="none">
                 <defs>
@@ -861,7 +886,6 @@
         const scoreListElement = document.querySelector("#score ul");
         const modalElement = document.getElementById("modal");
         const closeModalBtn = document.getElementById("closeModalBtn");
-        // ADDED: Elements for the new instructions modal
         const instructionsModalElement = document.getElementById("instructionsModal");
         const closeInstructionsModalBtn = document.getElementById("closeInstructionsModalBtn");
         const startBtn1 = document.getElementById("startBtn1");
@@ -871,6 +895,7 @@
         const rightTopBtn = document.getElementById("rightTopBtn");
         const rightBottomBtn = document.getElementById("rightBottomBtn");
         const handGif = document.getElementById("handGif");
+        const pauseOverlay = document.getElementById("pause-overlay"); // ADDED
         
         // --- MODIFIED: Audio elements and state management ---
         const audioPlayBtn = document.getElementById("audioPlayBtn");
@@ -885,16 +910,14 @@
         const audioTracks = [backgroundAudio, backgroundAudio2];
         let currentTrackIndex = 0;
         let currentAudio = audioTracks[currentTrackIndex];
-        audioTracks.forEach(track => track.volume = 0.1); // Set volume for all tracks
+        audioTracks.forEach(track => track.volume = 0.1);
 
-        let hasAudioBeenPlayed = false; // Flag to track if audio has started
-        let hintTimer = null; // Timer for the glowing button hint
-        let musicHintTimer = null; // Timer for the music button hint
-        let gifHintTimer = null; // Timer for the hint GIF
-        let underwaterTimeoutId = null; // Timer for showing bubbles
-        // ADDED: Flag to show instructions modal only once
+        let hasAudioBeenPlayed = false;
+        let hintTimer = null;
+        let musicHintTimer = null;
+        let gifHintTimer = null;
+        let underwaterTimeoutId = null;
         let hasShownInstructions = false;
-        // ADDED: Master flag to control the entire hint sequence
         let hintSequenceHasBeenInitiated = false;
 
 
@@ -918,8 +941,10 @@
                 this.previousEggState = "";
                 this.gameType = "A";
                 this.intervalId = null;
+                this.isPaused = false; // ADDED: Pause state
             }
             start() {
+                if (this.isEnded || this.isPaused) return; // Prevent starting if paused or ended
                 this.intervalId = setInterval(() => {
                     if (this.isEnded) {
                         clearInterval(this.intervalId);
@@ -927,9 +952,7 @@
                     }
                     const egg = new Egg();
                     egg.fall();
-                    if (this.score % 100 == 0 && this.score > 0) {
-                        // Bonus life could be implemented here
-                    }
+                    if (this.score % 100 == 0 && this.score > 0) {}
                     if (this.score > 0 && this.score % 10 == 0 && this.eggFrequency >= 800 && this.eggSpeed >= 500) {
                         if (this.gameType == "A") {
                             this.eggFrequency -= EGG_FREQUENCY_CHANGE_A;
@@ -952,7 +975,6 @@
                     gameWrapElement.classList.add("game-off");
                 }, 1500);
             }
-            // ADDED: Reset method for seamless restart
             reset() {
                 clearInterval(this.intervalId);
                 this.score = 0;
@@ -963,6 +985,7 @@
                 this.gameStarted = false;
                 this.previousEggState = "";
                 this.intervalId = null;
+                this.isPaused = false;
                 this.wolf.x = 0;
                 this.wolf.y = 1;
                 this.wolf.updatePosition();
@@ -975,6 +998,17 @@
                 for (let i = 0; i < 4; i++) {
                     gameWrapElement.setAttribute('data-egg-' + i, 0);
                 }
+            }
+            // ADDED: Pause and Resume methods
+            pause() {
+                if (!this.gameStarted || this.isPaused || this.isEnded) return;
+                this.isPaused = true;
+                clearInterval(this.intervalId);
+            }
+            resume() {
+                if (!this.gameStarted || !this.isPaused || this.isEnded) return;
+                this.isPaused = false;
+                this.start();
             }
             updateScore() {
                 this.score += 1;
@@ -1040,9 +1074,8 @@
             fall() {
                 const self = this;
                 const interval = setInterval(() => {
-                    if (game.isEnded) {
+                    if (game.isEnded || game.isPaused) { // Check for pause
                         clearInterval(interval);
-                        gameWrapElement.setAttribute('data-egg-' + self.eggIndex, 0);
                         return;
                     }
                     self.step++;
@@ -1057,28 +1090,18 @@
         }
         // --- INITIALIZE GAME and EVENT LISTENERS ---
         const game = new Game();
-        // MODIFIED: Updated function to clear all hint timers and classes, including the master flag
         function clearHint() {
-            if (hintTimer) {
-                clearTimeout(hintTimer);
-                hintTimer = null;
-            }
-            if (musicHintTimer) {
-                clearTimeout(musicHintTimer);
-                musicHintTimer = null;
-            }
-            if (gifHintTimer) {
-                clearTimeout(gifHintTimer);
-                gifHintTimer = null;
-            }
+            if (hintTimer) clearTimeout(hintTimer);
+            if (musicHintTimer) clearTimeout(musicHintTimer);
+            if (gifHintTimer) clearTimeout(gifHintTimer);
             handGif.classList.remove('visible');
             startBtn1.classList.remove('glowing-hint');
             audioPlayBtn.classList.remove('glowing-blue-hint');
-            hintSequenceHasBeenInitiated = false; // Reset the master flag
+            hintSequenceHasBeenInitiated = false;
         }
         function handleMove(moveFn1, moveFn2) {
             clearHint();
-            if (game.isEnded) return;
+            if (game.isEnded || game.isPaused) return; // Prevent movement when paused
             if (!game.gameStarted) {
                 gameWrapElement.classList.remove("game-off"); 
                 gameWrapElement.classList.add("game-on");
@@ -1094,13 +1117,10 @@
         rightBottomBtn.addEventListener("click", () => handleMove(game.wolf.moveRight, game.wolf.moveDown));
         rightTopBtn.addEventListener("click", () => handleMove(game.wolf.moveRight, game.wolf.moveUp));
         
-        // MODIFIED: Start button logic to handle seamless restarts
         startBtn1.addEventListener("click", () => {
             clearHint();
             if (game.isEnded || !game.gameStarted) {
-                if (game.isEnded) {
-                    game.reset();
-                }
+                if (game.isEnded) game.reset();
                 gameWrapElement.classList.remove("game-off");
                 gameWrapElement.classList.add("game-on");
                 game.start();
@@ -1111,9 +1131,7 @@
         startBtn2.addEventListener("click", () => {
             clearHint();
             if (game.isEnded || !game.gameStarted) {
-                if (game.isEnded) {
-                    game.reset();
-                }
+                if (game.isEnded) game.reset();
                 gameWrapElement.classList.remove("game-off");
                 gameWrapElement.classList.add("game-on");
                 game.eggSpeed = 3000;
@@ -1135,7 +1153,6 @@
                     bubbleContainer.classList.add('active');
                 }, 2500);
             } else { // Yellow theme
-                document.body.classList.remove('underwater-active'); // ensure blue is off first
                 document.body.classList.add('yellow-active');
                 bubbleContainer.classList.remove('active');
             }
@@ -1177,21 +1194,49 @@
             updateMusicVisuals();
         });
 
+        // MODIFIED: `audioNextBtn` listener with pause/resume logic
         audioNextBtn.addEventListener("click", () => {
+            const wasPlaying = !currentAudio.paused;
+            
+            // If the game isn't running, just switch the tracks without pausing.
+            if (!game.gameStarted || game.isEnded) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentTrackIndex = (currentTrackIndex + 1) % audioTracks.length;
+                currentAudio = audioTracks[currentTrackIndex];
+                if (wasPlaying) {
+                    currentAudio.play();
+                }
+                updateMusicVisuals();
+                return;
+            }
+
+            // --- Pause, Transition, Resume Sequence ---
+            game.pause();
+            pauseOverlay.classList.add('visible');
+
             currentAudio.pause();
             currentTrackIndex = (currentTrackIndex + 1) % audioTracks.length;
             currentAudio = audioTracks[currentTrackIndex];
             currentAudio.currentTime = 0;
-            currentAudio.play();
             
-            audioPlayBtn.classList.add('playing');
+            if (wasPlaying) {
+                currentAudio.play();
+                audioPlayBtn.classList.add('playing');
+            }
+            
             updateMusicVisuals();
+
+            setTimeout(() => {
+                game.resume();
+                pauseOverlay.classList.remove('visible');
+            }, 2100); // Wait for the 2s CSS transition to finish smoothly
         });
 
         audioDownloadBtn.addEventListener("click", () => {
             const link = document.createElement('a');
             link.href = currentAudio.src;
-            link.download = `music_${currentTrackIndex + 1}.wav`; 
+            link.download = `Nu-pogodi-music-${currentTrackIndex + 1}.wav`; 
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1217,16 +1262,12 @@
                             hintTimer = setTimeout(() => {
                                 if (!game.gameStarted) {
                                     startBtn1.classList.add('glowing-hint');
-                                    setTimeout(() => {
-                                        startBtn1.classList.remove('glowing-hint');
-                                    }, 1500);
+                                    setTimeout(() => startBtn1.classList.remove('glowing-hint'), 1500);
 
                                     musicHintTimer = setTimeout(() => {
                                         if (!game.gameStarted && !hasAudioBeenPlayed) {
                                             audioPlayBtn.classList.add('glowing-blue-hint');
-                                            setTimeout(() => {
-                                                audioPlayBtn.classList.remove('glowing-blue-hint');
-                                            }, 1500);
+                                            setTimeout(() => audioPlayBtn.classList.remove('glowing-blue-hint'), 1500);
                                         }
                                     }, 1500 + 3500);
                                 }
